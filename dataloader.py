@@ -5,6 +5,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, models
 from PIL import Image
+import sys
 
 class SegmentationDataset(Dataset):
     def __init__(self, root_dir, transform=None, transform_segmentation=None):
@@ -48,7 +49,8 @@ class SegmentationDataset(Dataset):
 
         return images, label
 
-
+# need to rewrite a dataset class since test dataset is different from training dataset
+# test dataset only do not have whitelist and blacklist, all files are in the same folder
 class SegmentationDataset_train(Dataset):
     def __init__(self, root_dir, transform=None, transform_segmentation=None):
         self.root_dir = root_dir
@@ -70,6 +72,7 @@ class SegmentationDataset_train(Dataset):
                         elif file.startswith('label') and file.endswith('.png'):
                             segmentation_image_path = os.path.join(folder_path, file)
                     self.samples.append((rgb_image_path, segmentation_image_path, label))
+
     def __len__(self):
         return len(self.samples)
     
@@ -83,15 +86,12 @@ class SegmentationDataset_train(Dataset):
         if self.transform_segmentation:
             segmentation_image = self.transform_segmentation(segmentation_image)
     
-        #! Blacklist is 0, whitelist is 1
-        label = 0 if label == "whitelists" else 1
+        #* Label: Blacklist is 0, whitelist is 1
+        label = 0 if label == "whitelist" else 1
         images = torch.cat([rgb_image, segmentation_image], dim=0)
-        print(images.shape)
 
         return images, label
 
-# need to rewrite a dataset class since test dataset is different from training dataset
-# test dataset only do not have whitelist and blacklist, all files are in the same folder
 class SegmentationDataset_test(Dataset):
     def __init__(self, root_dir, transform=None, transform_segmentation=None):
         self.root_dir = root_dir
@@ -115,8 +115,6 @@ class SegmentationDataset_test(Dataset):
     def __len__(self):
         return len(self.samples)
 
-
-    
     def __getitem__(self, idx):
         rgb_path, segmentation_path, label = self.samples[idx]
         rgb_image = Image.open(rgb_path).convert("RGB")
@@ -127,12 +125,9 @@ class SegmentationDataset_test(Dataset):
         if self.transform_segmentation:
             segmentation_image = self.transform_segmentation(segmentation_image)
     
-        #! Blacklist is 0, whitelist is 1
-        label = 0 if label == "whitelists" else 1
         images = torch.cat([rgb_image, segmentation_image], dim=0)
-        print(images.shape)
 
-        return images, label
+        return images
 
 def get_dataloaders():
     transform_rgb = transforms.Compose([
@@ -161,22 +156,19 @@ def get_dataloaders():
 
 if __name__ == "__main__":
     dataloaders = get_dataloaders()
-
-
-
+    
+    # enumerate根据batch size来取数据 size = 24
     for i, (image, labels) in enumerate(dataloaders['train']):
         print("image shape:", image.shape)
         print("labels:", labels)
         if i == 0:
             break
+        # torch.Size([8, 4, 224, 224]), 即8张图片，每张图片有4个channel
 
-    for i, (image, labels) in enumerate(dataloaders['val']):
+
+    for i, (image) in enumerate(dataloaders['val']):
         print("image shape:", image.shape)
-        print("labels:", labels)
         if i == 0:
             break
-        
-    for inputs, labels in dataloaders['train']:
-        print(inputs.shape)
-        print(labels)
-        break
+        # torch.Size([4, 4, 224, 224]), 即4张图片，每张图片有4个channel
+
