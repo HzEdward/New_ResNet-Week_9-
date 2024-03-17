@@ -72,7 +72,7 @@ def initialize_model():
     return model, criterion, optimizer
 
 #! num of epoch changed to 10
-def train_model(model, dataloaders, criterion, optimizer, num_epochs=28):
+def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
     print("Training started!")
     for epoch in range(num_epochs):
         model.train()
@@ -98,23 +98,27 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=28):
     print("Training finished!")
 
 # write a valid function to test the model
-def valid_model(model, dataloaders, criterion):
+def valid_model(model, dataloaders, criterion, num_epochs=5):
     print("Validation started!")
-    model.eval()
-    running_loss = 0
-    running_corrects = 0
-    # input 即 shape
-    for inputs, labels in dataloaders['val']:
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
-        _, preds = torch.max(outputs, 1)
-        running_loss += loss.item() * inputs.size(0)
-        running_corrects += torch.sum(preds == labels.data)
+    for epoch in range(num_epochs):
+        model.eval()  # 确保模型处于评估模式
+        running_loss = 0
+        running_corrects = 0
 
-    epoch_loss = running_loss / len(dataloaders['val'].dataset)
-    epoch_acc = running_corrects.double() / len(dataloaders['val'].dataset)
-    
-    print(f'Val Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+        # 在验证阶段，我们不需要更新参数
+        with torch.no_grad():  # 禁用梯度计算
+            for inputs, labels in dataloaders['val']:
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                _, preds = torch.max(outputs, 1)
+                running_loss += loss.item() * inputs.size(0)
+                running_corrects += torch.sum(preds == labels.data)
+
+        epoch_loss = running_loss / len(dataloaders['val'].dataset)
+        epoch_acc = running_corrects.double() / len(dataloaders['val'].dataset)
+        
+        print(f'Epoch {epoch}/{num_epochs - 1} Val Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+
     print("Validation finished!")
 
 
@@ -122,17 +126,20 @@ def test_model(model, dataloaders):
     #* Directly be given a folder, not validation but test
     #* the model would automatically output each file's prediction
     model.eval()
-    for inputs, folder_names in dataloaders['val']:
-        print("input.shape:", inputs.shape)
-        print("folder_name:", folder_names)
-        outputs = model(inputs)
-        print("outputs:", outputs)
-        _, preds = torch.max(outputs, 1)
-        print("-------------------")
-        for folder_name, pred in zip(folder_names, preds):
-            print(f"File: {folder_name}, Prediction: {pred}")
-            # if pred == 1: then add additional colume to that row with the same image name and 
-            modify_csv()
+    
+    with torch.no_grad():
+        for inputs, folder_names in dataloaders['val']:
+            print("input.shape:", inputs.shape)
+            print("folder_name:", folder_names)
+            outputs = model(inputs)
+            print("outputs:", outputs)
+            _, preds = torch.max(outputs, 1)
+            print("-------------------")
+            for folder_name, pred in zip(folder_names, preds):
+                print(f"File: {folder_name}, Prediction: {pred}")
+                # if pred == 1: then add additional colume to that row with the same image name and 
+                modify_csv()
+
     print("Validation finished!")
 
 def modify_csv(csv_path: str ="./data.csv"):
@@ -141,66 +148,6 @@ def modify_csv(csv_path: str ="./data.csv"):
     '''
 
     
-
-def resume_training(model, optimizer, checkpoint, dataloaders, criterion, num_epochs=25):
-    '''
-        the function using the checkpoint to resume training
-    '''
-    model.load_state_dict(checkpoint['model'])
-    optimizer.load_state_dict(checkpoint['optimizer'])
-    start_epoch = checkpoint['epoch']
-    print(f"Resuming training from epoch {start_epoch}")
-    print("Training started!")
-
-    for epoch in range(start_epoch, num_epochs):
-        model.train()
-        running_loss = 0
-        running_corrects = 0
-
-        for inputs, labels in dataloaders['train']:
-            optimizer.zero_grad() 
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            _, preds = torch.max(outputs, 1)
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item() * inputs.size(0)
-            running_corrects += torch.sum(preds == labels.data)
-
-        epoch_loss = running_loss / len(dataloaders['train'].dataset)
-        epoch_acc = running_corrects.double() / len(dataloaders['train'].dataset)
-        
-        print(f'Epoch {epoch}/{num_epochs - 1} Train Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
-        
-    print("Training finished!")
-
-def test_model_checkpoint(model, dataloaders, checkpoint):
-    '''
-        the function to test the model on the testset by using the checkpoint
-    '''
-    model.load_state_dict(checkpoint['model'])
-    model.eval()
-    running_corrects = 0
-
-    for inputs, labels in dataloaders['val']:
-        outputs = model(inputs)
-        _, preds = torch.max(outputs, 1)
-        running_corrects += torch.sum(preds == labels.data)
-
-    epoch_acc = running_corrects.double() / len(dataloaders['val'].dataset)
-    print(f'Test Acc: {epoch_acc:.4f}')
-    print("Testing finished!")
-
-def create_checkpoint(model, optimizer, epoch):
-    checkpoint = {
-        'model': model.state_dict(),
-        'optimizer': optimizer.state_dict(),
-        'epoch': epoch
-    }
-    #save checkpoint inside logs folder
-    torch.save(checkpoint, 'logs/checkpoint.pth')
-    return checkpoint
-
 if __name__ == "__main__":
     # change cpu to gpu
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -209,6 +156,7 @@ if __name__ == "__main__":
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
     train_model(model, dataloaders, criterion, optimizer)
+    sys.exit()
     print("=====================================")
     test_model(model, dataloaders)
 
