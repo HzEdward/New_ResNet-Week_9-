@@ -117,6 +117,18 @@ def valid_model(model, dataloaders, criterion):
     print("Validation finished!")
 
 
+def new_valid_model(model, dataloaders, criterion):
+    # in this new function, we would directly be given a folder and the model would automatically output each file's prediction
+    model.eval()
+    for inputs, filenames in dataloaders['val']:
+        outputs = model(inputs)
+        print("outputs:", outputs)
+        _, preds = torch.max(outputs, 1)
+        for filename, pred in zip(filenames, preds):
+            print(f"File: {filename}, Prediction: {pred}")
+    print("Validation finished!")
+
+
 def resume_training(model, optimizer, checkpoint, dataloaders, criterion, num_epochs=25):
     '''
         the function using the checkpoint to resume training
@@ -149,8 +161,7 @@ def resume_training(model, optimizer, checkpoint, dataloaders, criterion, num_ep
         
     print("Training finished!")
 
-
-def test_model(model, dataloader, checkpoint):
+def test_model(model, dataloaders, checkpoint):
     '''
         the function to test the model on the testset by using the checkpoint
     '''
@@ -185,7 +196,8 @@ if __name__ == "__main__":
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
     train_model(model, dataloaders, criterion, optimizer)
-    valid_model(model, dataloaders, criterion)
+    # valid_model(model, dataloaders, criterion)
+    new_valid_model(model, dataloaders, criterion)
 
     
 
