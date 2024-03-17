@@ -116,7 +116,7 @@ class SegmentationDataset_test(Dataset):
         return len(self.samples)
 
     def __getitem__(self, idx):
-        rgb_path, segmentation_path, label = self.samples[idx]
+        rgb_path, segmentation_path, folder = self.samples[idx]
         rgb_image = Image.open(rgb_path).convert("RGB")
         segmentation_image = Image.open(segmentation_path).convert("L")
         
@@ -127,7 +127,7 @@ class SegmentationDataset_test(Dataset):
     
         images = torch.cat([rgb_image, segmentation_image], dim=0)
 
-        return images
+        return images, folder
 
 def get_dataloaders():
     transform_rgb = transforms.Compose([
@@ -157,18 +157,19 @@ def get_dataloaders():
 if __name__ == "__main__":
     dataloaders = get_dataloaders()
     
-    # enumerate根据batch size来取数据 size = 24
-    for i, (image, labels) in enumerate(dataloaders['train']):
-        print("image shape:", image.shape)
-        print("labels:", labels)
-        if i == 0:
-            break
-        # torch.Size([8, 4, 224, 224]), 即8张图片，每张图片有4个channel
+    # # enumerate根据batch size来取数据 size = 24
+    # for i, (image, labels) in enumerate(dataloaders['train']):
+    #     print("image shape:", image.shape)
+    #     print("labels:", labels)
+    #     if i == 0:
+    #         break
+    #     # torch.Size([8, 4, 224, 224]), 即8张图片，每张图片有4个channel
 
 
-    for i, (image) in enumerate(dataloaders['val']):
+    for i, (image, folder) in enumerate(dataloaders['val']):
         print("image shape:", image.shape)
         if i == 0:
             break
+        
         # torch.Size([4, 4, 224, 224]), 即4张图片，每张图片有4个channel
 

@@ -102,7 +102,7 @@ def valid_model(model, dataloaders, criterion):
     model.eval()
     running_loss = 0
     running_corrects = 0
-
+    # input 即 shape
     for inputs, labels in dataloaders['val']:
         outputs = model(inputs)
         loss = criterion(outputs, labels)
@@ -117,17 +117,20 @@ def valid_model(model, dataloaders, criterion):
     print("Validation finished!")
 
 
-def new_valid_model(model, dataloaders, criterion):
-    # in this new function, we would directly be given a folder and the model would automatically output each file's prediction
+def test_model(model, dataloaders):
+    #* Directly be given a folder, not validation but test
+    #* the model would automatically output each file's prediction
     model.eval()
-    for inputs, filenames in dataloaders['val']:
+    for inputs, folder_names in dataloaders['val']:
+        print("input.shape:", inputs.shape)
+        print("folder_name:", folder_names)
         outputs = model(inputs)
         print("outputs:", outputs)
         _, preds = torch.max(outputs, 1)
-        for filename, pred in zip(filenames, preds):
-            print(f"File: {filename}, Prediction: {pred}")
+        print("-------------------")
+        for folder_name, pred in zip(folder_names, preds):
+            print(f"File: {folder_name}, Prediction: {pred}")
     print("Validation finished!")
-
 
 def resume_training(model, optimizer, checkpoint, dataloaders, criterion, num_epochs=25):
     '''
@@ -161,7 +164,7 @@ def resume_training(model, optimizer, checkpoint, dataloaders, criterion, num_ep
         
     print("Training finished!")
 
-def test_model(model, dataloaders, checkpoint):
+def test_model_checkpoint(model, dataloaders, checkpoint):
     '''
         the function to test the model on the testset by using the checkpoint
     '''
@@ -195,9 +198,8 @@ if __name__ == "__main__":
 
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
-    train_model(model, dataloaders, criterion, optimizer)
-    # valid_model(model, dataloaders, criterion)
-    new_valid_model(model, dataloaders, criterion)
+    # train_model(model, dataloaders, criterion, optimizer)
+    test_model(model, dataloaders)
 
     
 
