@@ -71,7 +71,8 @@ def initialize_model():
 
     return model, criterion, optimizer
 
-def train_model(model, dataloaders, criterion, optimizer, num_epochs=30):
+#! num of epoch changed to 10
+def train_model(model, dataloaders, criterion, optimizer, num_epochs=28):
     print("Training started!")
     for epoch in range(num_epochs):
         model.train()
@@ -130,7 +131,16 @@ def test_model(model, dataloaders):
         print("-------------------")
         for folder_name, pred in zip(folder_names, preds):
             print(f"File: {folder_name}, Prediction: {pred}")
+            # if pred == 1: then add additional colume to that row with the same image name and 
+            modify_csv()
     print("Validation finished!")
+
+def modify_csv(csv_path: str ="./data.csv"):
+    '''
+        the function to modify the csv file
+    '''
+
+    
 
 def resume_training(model, optimizer, checkpoint, dataloaders, criterion, num_epochs=25):
     '''
@@ -198,7 +208,8 @@ if __name__ == "__main__":
 
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
-    # train_model(model, dataloaders, criterion, optimizer)
+    train_model(model, dataloaders, criterion, optimizer)
+    print("=====================================")
     test_model(model, dataloaders)
 
     
