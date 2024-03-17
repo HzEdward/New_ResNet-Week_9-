@@ -43,11 +43,11 @@ class SegmentationDataset(Dataset):
             segmentation_image = self.transform_segmentation(segmentation_image)
     
         #! Blacklist is 0, whitelist is 1
-        label = 0 if label == "whitelists" else 1
+        label = 0 if label == "whitelist" else 1
         images = torch.cat([rgb_image, segmentation_image], dim=0)
-        print(images.shape)
 
-        return images, label
+#*rgb path is added to the return value
+        return images, label, rgb_path
 
 # need to rewrite a dataset class since test dataset is different from training dataset
 # test dataset only do not have whitelist and blacklist, all files are in the same folder
@@ -149,12 +149,15 @@ def get_dataloaders():
     ])
     
     #* Testing on the final dataset
-    train_dataset = SegmentationDataset_train(root_dir='./mock_dataset/train', transform=transform_rgb, transform_segmentation=transform_segmentation)
-    val_dataset = SegmentationDataset_test(root_dir='./mock_dataset/test', transform=transform_rgb, transform_segmentation=transform_segmentation)
+    # train_dataset = SegmentationDataset_train(root_dir='./mock_dataset/train', transform=transform_rgb, transform_segmentation=transform_segmentation)
+    # val_dataset = SegmentationDataset_test(root_dir='./mock_dataset/test', transform=transform_rgb, transform_segmentation=transform_segmentation)
+    
+    train_dataset = SegmentationDataset(root_dir='./mock_dataset_4/train', transform=transform_rgb, transform_segmentation=transform_segmentation)
+    val_dataset = SegmentationDataset(root_dir='./mock_dataset_4/test', transform=transform_rgb, transform_segmentation=transform_segmentation)    
     
     #! note: batch size is 24
     train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=24, shuffle=False)
+    val_loader = DataLoader(val_dataset, batch_size=3, shuffle=True)
     
     return {'train': train_loader, 'val': val_loader}
 

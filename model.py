@@ -79,7 +79,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
         running_loss = 0
         running_corrects = 0
 
-        for inputs, labels in dataloaders['train']:
+        for inputs, labels, rgb_path in dataloaders['train']:
             optimizer.zero_grad() 
             outputs = model(inputs)
             loss = criterion(outputs, labels)
@@ -107,14 +107,19 @@ def valid_model(model, dataloaders, criterion, num_epochs=5):
 
         # 在验证阶段，我们不需要更新参数
         with torch.no_grad():  # 禁用梯度计算
-            for inputs, labels in dataloaders['val']:
+            for inputs, labels, rgb_path in dataloaders['val']:
+                # print("rgb_path:", rgb_path)
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
                 _, preds = torch.max(outputs, 1)
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
 
+
         epoch_loss = running_loss / len(dataloaders['val'].dataset)
+        print("running loss:", running_loss)
+        print("len(dataloaders['val'].dataset):", len(dataloaders['val'].dataset))
+        print("=====================================")
         epoch_acc = running_corrects.double() / len(dataloaders['val'].dataset)
         
         print(f'Epoch {epoch}/{num_epochs - 1} Val Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
@@ -126,7 +131,7 @@ def test_model(model, dataloaders):
     #* Directly be given a folder, not validation but test
     #* the model would automatically output each file's prediction
     model.eval()
-    
+
     with torch.no_grad():
         for inputs, folder_names in dataloaders['val']:
             print("input.shape:", inputs.shape)
@@ -156,6 +161,7 @@ if __name__ == "__main__":
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
     train_model(model, dataloaders, criterion, optimizer)
+    valid_model(model, dataloaders, criterion)
     sys.exit()
     print("=====================================")
     test_model(model, dataloaders)
