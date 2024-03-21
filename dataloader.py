@@ -133,6 +133,7 @@ class SegmentationDataset_test(Dataset):
 
         return images, folder, img_path
 
+
 def get_dataloaders():
     transform_rgb = transforms.Compose([
         transforms.Resize((224, 224)),

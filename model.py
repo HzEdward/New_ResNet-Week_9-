@@ -98,8 +98,10 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
     print("Training finished!")
 
 # write a valid function to test the model
-def valid_model(model, dataloaders, criterion, num_epochs=5):
+def valid_model(model, dataloaders, criterion, num_epochs=2):
     print("Validation started!")
+    print("=====================================")
+
     for epoch in range(num_epochs):
         model.eval()  # 确保模型处于评估模式
         running_loss = 0
@@ -108,16 +110,15 @@ def valid_model(model, dataloaders, criterion, num_epochs=5):
         # 在验证阶段，我们不需要更新参数
         with torch.no_grad():  # 禁用梯度计算
             for inputs, labels, rgb_path in dataloaders['val']:
-                # print("rgb_path:", rgb_path)
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
                 _, preds = torch.max(outputs, 1)
                 running_loss += loss.item() * inputs.size(0)
+                print(f"length of rgb_path:{len(rgb_path)}, rgb_path:{rgb_path}")
                 running_corrects += torch.sum(preds == labels.data)
 
-
+        
         epoch_loss = running_loss / len(dataloaders['val'].dataset)
-        print("running loss:", running_loss)
         print("len(dataloaders['val'].dataset):", len(dataloaders['val'].dataset))
         print("=====================================")
         epoch_acc = running_corrects.double() / len(dataloaders['val'].dataset)
