@@ -52,11 +52,16 @@ class SegmentationDataset(Dataset):
         Read the data from the CSV file and populate the data list.
         """
         data = pd.read_csv(os.path.join(self.root_dir, 'data.csv'))
+        count = 0
 
         for index, row in data.iterrows():
-            image_path = os.path.join(self.root_dir, row['img_path'])
-            label_path = os.path.join(self.root_dir, row['lbl_path'])
-            self.data.append((image_path, label_path))
+            if row['blacklisted'] == 0:
+                image_path = os.path.join(self.root_dir, row['img_path'])
+                label_path = os.path.join(self.root_dir, row['lbl_path'])
+                self.data.append((image_path, label_path))
+            else:
+                pass
+
 
     def __len__(self):
         """
@@ -75,25 +80,32 @@ class SegmentationDataset(Dataset):
             idx (int): The index of the item to retrieve.
 
         Returns:
-            tuple: A tuple containing the image and label.
+            元组: 一个包含图像和标签的元组。
         """
         image_path, label_path = self.data[idx]
-        # combine '../Segmentation/' and img_path='./Video01/Labels/Video1_frame000100.png' to get the full path
-        # full path: '../Segmentation/Video01/Labels/Video1_frame000100.png'
         image_full_path = os.path.join('../segmentation/', image_path[2:])
         label_full_path = os.path.join('../segmentation/', label_path[2:])
-        
 
+        #* 可以省略，只是为了检查路径是否正确
         print("image_path:", image_full_path)
         print("label_path:", label_full_path)
+        # e.g. image_path: ../segmentation/Video01/Images/Video1_frame000090.png
+        #      label_path: ../segmentation/Video01/Labels/Video1_frame000090.png
 
+        # Check if the image and label exist
         if not os.path.exists(image_full_path): 
             print("The image does not exist:", image_full_path)
             sys.exit(1)
-        elif not os.path.exists(label_full_path):
+        else:
+            pass
+
+        if not os.path.exists(label_full_path):
             print("The label does not exist:", label_full_path)
             sys.exit(1)
+        else:
+            pass
 
+        # 将image和label读取为PIL格式
         image = Image.open(image_full_path).convert("RGB")
         label = Image.open(image_full_path).convert("L")
 
@@ -101,15 +113,9 @@ class SegmentationDataset(Dataset):
             image = self.transform(image)
         if self.transform_segmentation:
             label = self.transform_segmentation(label)
-
-        # how to print the shape of the image and label
-     
-
-
+    
         return image, label
  
-
-
 def get_dataloaders():
     """
     Get the testing dataloaders.
@@ -138,11 +144,11 @@ def get_dataloaders():
 
     return dataloader
 
-
 if __name__ == '__main__':
+   device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
    dataloader = get_dataloaders()
    for i, (image, label) in enumerate(dataloader):
          print("image shape:", image.shape)
          print("label shape:", label.shape)
-         if i == 0:
+         if i == 10:
               break

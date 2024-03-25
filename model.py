@@ -143,8 +143,6 @@ def test_model(model, dataloaders):
             print("-------------------")
             for folder_name, pred in zip(folder_names, preds):
                 print(f"File: {folder_name}, Prediction: {pred}")
-                # if pred == 1: then add additional colume to that row with the same image name and 
-                modify_csv()
 
     print("Validation finished!")
 
