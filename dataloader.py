@@ -156,25 +156,17 @@ def get_dataloaders():
     train_dataset = SegmentationDataset(root_dir='./mock_dataset_4/train', transform=transform_rgb, transform_segmentation=transform_segmentation)
     val_dataset = SegmentationDataset(root_dir='./mock_dataset_4/test', transform=transform_rgb, transform_segmentation=transform_segmentation)    
     
-    #! note: batch size is 24
+    #! note: batch size is 24, Shuffle both are True
     train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=3, shuffle=True)
     
     return {'train': train_loader, 'val': val_loader}
 
 if __name__ == "__main__":
-    dataloaders = get_dataloaders()
-    
-    # enumerate根据batch size来取数据 size = 24
-    # for i, (image, labels) in enumerate(dataloaders['train']):
-    #     print("image shape:", image.shape)
-    #     print("labels:", labels)
-    #     if i == 0:
-    #         break
-        # torch.Size([8, 4, 224, 224]), 即8张图片，每张图片有4个channel
+    dataloaders = get_dataloaders()    
+    #* enumerate根据batch size来取数据. 
+    #* torch.Size([24, 4, 224, 224]), 即24张图片，每张图片有4个channel
     print("=====================================")
-
-
     for i, (image, folder, img_path) in enumerate(dataloaders['val']):
         print("image shape:", image.shape)
         print("folder:", folder)
@@ -182,5 +174,3 @@ if __name__ == "__main__":
         if i == 0:
             break
         
-        # torch.Size([4, 4, 224, 224]), 即4张图片，每张图片有4个channel
-

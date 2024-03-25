@@ -22,7 +22,7 @@ note:
 * __getitem__中一定要用0和1来作为返回值,否则不符合内部操作规定
 
 在运行程序时注意：
-* 为了使用GPU，需要将模型和数据转移到GPU上，设置GPU.device("cuda:0"), 否则运行效果会比较慢
+* 为了使用GPU, 需要将模型和数据转移到GPU上, 设置GPU.device("cuda:0"), 否则运行效果会比较慢
 '''
 
 class SingleInputResNet(nn.Module):
@@ -70,7 +70,6 @@ def initialize_model():
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     return model, criterion, optimizer
-
 #! num of epoch changed to 10
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
     print("Training started!")
