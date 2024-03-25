@@ -117,7 +117,6 @@ def valid_model(model, dataloaders, criterion, num_epochs=2):
                 print(f"length of rgb_path:{len(rgb_path)}, rgb_path:{rgb_path}")
                 running_corrects += torch.sum(preds == labels.data)
 
-        
         epoch_loss = running_loss / len(dataloaders['val'].dataset)
         print("len(dataloaders['val'].dataset):", len(dataloaders['val'].dataset))
         print("=====================================")
@@ -126,7 +125,6 @@ def valid_model(model, dataloaders, criterion, num_epochs=2):
         print(f'Epoch {epoch}/{num_epochs - 1} Val Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
     print("Validation finished!")
-
 
 def test_model(model, dataloaders):
     #* Directly be given a folder, not validation but test
@@ -147,12 +145,6 @@ def test_model(model, dataloaders):
                 modify_csv()
 
     print("Validation finished!")
-
-def modify_csv(csv_path: str ="./data.csv"):
-    '''
-        the function to modify the csv file
-    '''
-
     
 if __name__ == "__main__":
     # change cpu to gpu

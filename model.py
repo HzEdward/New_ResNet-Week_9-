@@ -17,10 +17,6 @@ from dataloader import *
     5. test_model: 在测试集上测试模型
     创建检查点(create_checkpoint): 为模型创建检查点
 
-note: 
-* the dataloader is defined in dataloader.py。在本文件中Dataset读取被注释了，实际上这是一个可以工作的例子。
-* __getitem__中一定要用0和1来作为返回值,否则不符合内部操作规定
-
 在运行程序时注意：
 * 为了使用GPU, 需要将模型和数据转移到GPU上, 设置GPU.device("cuda:0"), 否则运行效果会比较慢
 '''
@@ -70,8 +66,8 @@ def initialize_model():
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     return model, criterion, optimizer
-#! num of epoch changed to 10
-def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
+#! num of epoch changed to 5, actually it should be 10, but for the sake of time, I changed it to 5
+def train_model(model, dataloaders, criterion, optimizer, num_epochs=10):
     print("Training started!")
     for epoch in range(num_epochs):
         model.train()
@@ -94,10 +90,34 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
         print(f'Epoch {epoch}/{num_epochs - 1} Train Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
         if epoch_acc == 1:
             break
+
     print("Training finished!")
 
+    # save the checkpoint later could be used in the test.
+    create_checkpoint(model, optimizer, epoch)
+
+def create_checkpoint(model, optimizer, epoch):
+    checkpoint = {
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'epoch': epoch
+    }
+    
+    torch.save(checkpoint, "checkpoint.pth")
+    print("Checkpoint created!")
+
 # write a valid function to test the model
-def valid_model(model, dataloaders, criterion, num_epochs=2):
+def valid_model(model, dataloaders, criterion, num_epochs=1, use_checkpoint=False):
+    # choose whether to use checkpoint or not
+    if use_checkpoint:
+        checkpoint = torch.load("checkpoint.pth")
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch = checkpoint['epoch']
+        print("Checkpoint loaded!")
+    else:
+        pass
+
     print("Validation started!")
     print("=====================================")
 
@@ -113,25 +133,20 @@ def valid_model(model, dataloaders, criterion, num_epochs=2):
                 loss = criterion(outputs, labels)
                 _, preds = torch.max(outputs, 1)
                 running_loss += loss.item() * inputs.size(0)
-                print(f"length of rgb_path:{len(rgb_path)}, rgb_path:{rgb_path}")
                 running_corrects += torch.sum(preds == labels.data)
 
-        
         epoch_loss = running_loss / len(dataloaders['val'].dataset)
-        print("len(dataloaders['val'].dataset):", len(dataloaders['val'].dataset))
-        print("=====================================")
+        # print("len(dataloaders['val'].dataset):", len(dataloaders['val'].dataset))
+        # print("=====================================")
         epoch_acc = running_corrects.double() / len(dataloaders['val'].dataset)
-        
         print(f'Epoch {epoch}/{num_epochs - 1} Val Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
     print("Validation finished!")
-
 
 def test_model(model, dataloaders):
     #* Directly be given a folder, not validation but test
     #* the model would automatically output each file's prediction
     model.eval()
-
     with torch.no_grad():
         for inputs, folder_names in dataloaders['val']:
             print("input.shape:", inputs.shape)
@@ -144,25 +159,15 @@ def test_model(model, dataloaders):
                 print(f"File: {folder_name}, Prediction: {pred}")
 
     print("Validation finished!")
-
-def modify_csv(csv_path: str ="./data.csv"):
-    '''
-        the function to modify the csv file
-    '''
-
-    
+  
 if __name__ == "__main__":
     # change cpu to gpu
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
-
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
-    train_model(model, dataloaders, criterion, optimizer)
-    valid_model(model, dataloaders, criterion)
-    sys.exit()
-    print("=====================================")
-    test_model(model, dataloaders)
+    # train_model(model, dataloaders, criterion, optimizer)
+    valid_model(model, dataloaders, criterion, use_checkpoint=True)
+
 
     
 

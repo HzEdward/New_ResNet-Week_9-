@@ -6,6 +6,9 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, models
 from PIL import Image
 import sys
+'''
+ note:  __getitem__中一定要用0和1来作为返回值,否则不符合内部操作规定
+'''
 
 class SegmentationDataset(Dataset):
     def __init__(self, root_dir, transform=None, transform_segmentation=None):
@@ -46,7 +49,7 @@ class SegmentationDataset(Dataset):
         label = 0 if label == "whitelist" else 1
         images = torch.cat([rgb_image, segmentation_image], dim=0)
 
-#*rgb path is added to the return value
+        #*rgb path is added to the return value
         return images, label, rgb_path
 
 # need to rewrite a dataset class since test dataset is different from training dataset
@@ -153,8 +156,9 @@ def get_dataloaders():
     # train_dataset = SegmentationDataset_train(root_dir='./mock_dataset/train', transform=transform_rgb, transform_segmentation=transform_segmentation)
     # val_dataset = SegmentationDataset_test(root_dir='./mock_dataset/test', transform=transform_rgb, transform_segmentation=transform_segmentation)
     
-    train_dataset = SegmentationDataset(root_dir='./mock_dataset_4/train', transform=transform_rgb, transform_segmentation=transform_segmentation)
-    val_dataset = SegmentationDataset(root_dir='./mock_dataset_4/test', transform=transform_rgb, transform_segmentation=transform_segmentation)    
+
+    train_dataset = SegmentationDataset(root_dir='../Final Dataset/train', transform=transform_rgb, transform_segmentation=transform_segmentation)
+    val_dataset = SegmentationDataset(root_dir='../Final Dataset/test', transform=transform_rgb, transform_segmentation=transform_segmentation)    
     
     #! note: batch size is 24, Shuffle both are True
     train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
@@ -166,11 +170,10 @@ if __name__ == "__main__":
     dataloaders = get_dataloaders()    
     #* enumerate根据batch size来取数据. 
     #* torch.Size([24, 4, 224, 224]), 即24张图片，每张图片有4个channel
-    print("=====================================")
     for i, (image, folder, img_path) in enumerate(dataloaders['val']):
+        print("=====================================")
         print("image shape:", image.shape)
-        print("folder:", folder)
         print("img_path:", img_path)
-        if i == 0:
+        if i == 10:
             break
         
