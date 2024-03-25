@@ -52,12 +52,11 @@ class SegmentationDataset(Dataset):
         Read the data from the CSV file and populate the data list.
         """
         data = pd.read_csv(os.path.join(self.root_dir, 'data.csv'))
+
         for index, row in data.iterrows():
             image_path = os.path.join(self.root_dir, row['img_path'])
             label_path = os.path.join(self.root_dir, row['lbl_path'])
             self.data.append((image_path, label_path))
-        print("The length of the data is:", len(self.data))
-        print("The first element of the data is:", self.data[0])
 
     def __len__(self):
         """
@@ -79,13 +78,33 @@ class SegmentationDataset(Dataset):
             tuple: A tuple containing the image and label.
         """
         image_path, label_path = self.data[idx]
-        image = Image.open(image_path)
-        label = Image.open(label_path)
+        # combine '../Segmentation/' and img_path='./Video01/Labels/Video1_frame000100.png' to get the full path
+        # full path: '../Segmentation/Video01/Labels/Video1_frame000100.png'
+        image_full_path = os.path.join('../segmentation/', image_path[2:])
+        label_full_path = os.path.join('../segmentation/', label_path[2:])
+        
+
+        print("image_path:", image_full_path)
+        print("label_path:", label_full_path)
+
+        if not os.path.exists(image_full_path): 
+            print("The image does not exist:", image_full_path)
+            sys.exit(1)
+        elif not os.path.exists(label_full_path):
+            print("The label does not exist:", label_full_path)
+            sys.exit(1)
+
+        image = Image.open(image_full_path).convert("RGB")
+        label = Image.open(image_full_path).convert("L")
 
         if self.transform:
             image = self.transform(image)
         if self.transform_segmentation:
             label = self.transform_segmentation(label)
+
+        # how to print the shape of the image and label
+     
+
 
         return image, label
  
@@ -100,12 +119,15 @@ def get_dataloaders():
     """
     # Define the transforms
     transform = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor()
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+
     ])
     transform_segmentation = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor()
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.5], std=[0.229])
     ])
 
     # Create the dataset
@@ -118,5 +140,9 @@ def get_dataloaders():
 
 
 if __name__ == '__main__':
-   dataset = SegmentationDataset(root_dir='./')
-   dataset.get_data()    
+   dataloader = get_dataloaders()
+   for i, (image, label) in enumerate(dataloader):
+         print("image shape:", image.shape)
+         print("label shape:", label.shape)
+         if i == 0:
+              break
