@@ -83,14 +83,12 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=10):
             optimizer.step()
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
-
         epoch_loss = running_loss / len(dataloaders['train'].dataset)
         epoch_acc = running_corrects.double() / len(dataloaders['train'].dataset)
         
         print(f'Epoch {epoch}/{num_epochs - 1} Train Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
         if epoch_acc == 1:
             break
-
     print("Training finished!")
 
     # save the checkpoint later could be used in the test.

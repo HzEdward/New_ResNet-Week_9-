@@ -6,7 +6,7 @@ from torchvision import transforms, datasets
 import sys
 import os
 from PIL import Image
-from dataloader import *
+from test_dataloader import *
 
 '''
 这是模型的主入口，包含以下功能：
@@ -126,24 +126,25 @@ def valid_model(model, dataloaders, criterion, num_epochs=2):
 
     print("Validation finished!")
 
-def test_model(model, dataloaders):
-    #* Directly be given a folder, not validation but test
-    #* the model would automatically output each file's prediction
+def test_model(model, dataloaders, checkpoint_loaded=False):
     model.eval()
-
+    if checkpoint_loaded:
+        checkpoint = torch.load("checkpoint.pth")
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch = checkpoint['epoch']
+        print("Checkpoint loaded!")
+    else:
+        pass
+    
     with torch.no_grad():
         for inputs, folder_names in dataloaders['val']:
-            print("input.shape:", inputs.shape)
-            print("folder_name:", folder_names)
             outputs = model(inputs)
-            print("outputs:", outputs)
             _, preds = torch.max(outputs, 1)
-            print("-------------------")
             for folder_name, pred in zip(folder_names, preds):
                 print(f"File: {folder_name}, Prediction: {pred}")
-                # if pred == 1: then add additional colume to that row with the same image name and 
-                modify_csv()
-
+                sys.exit()
+                
     print("Validation finished!")
     
 if __name__ == "__main__":
@@ -152,11 +153,11 @@ if __name__ == "__main__":
     print(device)
 
     model, criterion, optimizer = initialize_model()
+
     dataloaders = get_dataloaders()
-    train_model(model, dataloaders, criterion, optimizer)
-    valid_model(model, dataloaders, criterion)
-    print("=====================================")
-    test_model(model, dataloaders)
+    # train_model(model, dataloaders, criterion, optimizer)
+    # valid_model(model, dataloaders, criterion)
+    test_model(model, dataloaders, checkpoint_loaded=True)
 
     
 
