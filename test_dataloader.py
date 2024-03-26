@@ -62,7 +62,6 @@ class SegmentationDataset(Dataset):
             else:
                 pass
 
-
     def __len__(self):
         """
         Get the length of the dataset.
@@ -84,11 +83,11 @@ class SegmentationDataset(Dataset):
         """
         image_path, label_path = self.data[idx]
         image_full_path = os.path.join('../segmentation/', image_path[2:])
-        label_full_path = os.path.join('../segmentation/', label_path[2:])
+        mask_full_path = os.path.join('../segmentation/', label_path[2:])
 
         #* 可以省略，只是为了检查路径是否正确
-        print("image_path:", image_full_path)
-        print("label_path:", label_full_path)
+        # print("image_path:", image_full_path)
+        # print("label_path:", mask_full_path)
         # e.g. image_path: ../segmentation/Video01/Images/Video1_frame000090.png
         #      label_path: ../segmentation/Video01/Labels/Video1_frame000090.png
 
@@ -99,22 +98,26 @@ class SegmentationDataset(Dataset):
         else:
             pass
 
-        if not os.path.exists(label_full_path):
-            print("The label does not exist:", label_full_path)
+        if not os.path.exists(mask_full_path):
+            print("The label does not exist:", mask_full_path)
             sys.exit(1)
         else:
             pass
 
         # 将image和label读取为PIL格式
         image = Image.open(image_full_path).convert("RGB")
-        label = Image.open(image_full_path).convert("L")
+        mask = Image.open(mask_full_path).convert("L")
+
+        # print(f"image_full_path:{image_full_path}, mask_full_path:{mask_full_path}")
 
         if self.transform:
             image = self.transform(image)
         if self.transform_segmentation:
-            label = self.transform_segmentation(label)
+            mask = self.transform_segmentation(mask)
+
+        input = torch.cat([image, mask], dim=0)
     
-        return image, label
+        return input, image_full_path
  
 def get_dataloaders():
     """
@@ -137,18 +140,22 @@ def get_dataloaders():
     ])
 
     # Create the dataset
-    dataset = SegmentationDataset(root_dir='./', transform=transform, transform_segmentation=transform_segmentation)
+    test_dataset = SegmentationDataset(root_dir='./', transform=transform, transform_segmentation=transform_segmentation)
 
     # Create the dataloader
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+    test_loader= DataLoader(test_dataset, batch_size=1, shuffle=False)
 
-    return dataloader
+    return {
+        "test": test_loader
+    }
 
 if __name__ == '__main__':
    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
    dataloader = get_dataloaders()
-   for i, (image, label) in enumerate(dataloader):
-         print("image shape:", image.shape)
-         print("label shape:", label.shape)
-         if i == 10:
-              break
+   for i, (image, label, image_full_path) in enumerate(dataloader['test']):
+       print("=====================================")
+       print("image shape:", image.shape)
+       print("label shape:", label.shape)
+       print("img_path:", image_full_path)
+       if i == 10:
+           break

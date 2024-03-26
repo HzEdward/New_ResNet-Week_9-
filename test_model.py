@@ -71,8 +71,7 @@ def initialize_model():
 
     return model, criterion, optimizer
 
-#! num of epoch changed to 10
-def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
+def train_model(model, dataloaders, criterion, optimizer, num_epochs=30):
     print("Training started!")
     for epoch in range(num_epochs):
         model.train()
@@ -88,7 +87,6 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
             optimizer.step()
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
-
         epoch_loss = running_loss / len(dataloaders['train'].dataset)
         epoch_acc = running_corrects.double() / len(dataloaders['train'].dataset)
         
@@ -97,8 +95,29 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
             break
     print("Training finished!")
 
+    # save the checkpoint later could be used in the test.
+    create_checkpoint(model, optimizer, epoch)
+
+def create_checkpoint(model, optimizer, epoch):
+    checkpoint = {
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict()
+    }
+    torch.save(checkpoint, "checkpoint.pth")
+    print("Checkpoint created!")
+
 # write a valid function to test the model
-def valid_model(model, dataloaders, criterion, num_epochs=2):
+def valid_model(model, dataloaders, criterion, num_epochs=1, checkpoint_loaded=False):
+    if checkpoint_loaded:
+        checkpoint = torch.load("checkpoint.pth")
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch = checkpoint['epoch']
+        print("Checkpoint loaded!")
+    else:
+        pass
+
     print("Validation started!")
     print("=====================================")
 
@@ -128,6 +147,8 @@ def valid_model(model, dataloaders, criterion, num_epochs=2):
 
 def test_model(model, dataloaders, checkpoint_loaded=False):
     model.eval()
+
+
     if checkpoint_loaded:
         checkpoint = torch.load("checkpoint.pth")
         model.load_state_dict(checkpoint['model_state_dict'])
@@ -138,25 +159,22 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
         pass
     
     with torch.no_grad():
-        for inputs, folder_names in dataloaders['val']:
-            outputs = model(inputs)
+        for input, image_full_path in dataloaders['test']:
+            outputs = model(input)
             _, preds = torch.max(outputs, 1)
-            for folder_name, pred in zip(folder_names, preds):
-                print(f"File: {folder_name}, Prediction: {pred}")
-                sys.exit()
-                
+            
+            if preds == 0:
+                print(f"Image {image_full_path} is blacklisted")
+            else:
+                continue
+            
     print("Validation finished!")
     
 if __name__ == "__main__":
-    # change cpu to gpu
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
-
     model, criterion, optimizer = initialize_model()
-
     dataloaders = get_dataloaders()
-    # train_model(model, dataloaders, criterion, optimizer)
-    # valid_model(model, dataloaders, criterion)
+    
     test_model(model, dataloaders, checkpoint_loaded=True)
 
     

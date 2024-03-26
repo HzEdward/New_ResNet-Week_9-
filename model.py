@@ -16,6 +16,9 @@ from dataloader import *
     4. resume_training: 从检查点恢复训练
     5. test_model: 在测试集上测试模型
     创建检查点(create_checkpoint): 为模型创建检查点
+note: 
+* the dataloader is defined in dataloader.py。在本文件中Dataset读取被注释了，实际上这是一个可以工作的例子。
+* __getitem__中一定要用0和1来作为返回值,否则不符合内部操作规定
 
 在运行程序时注意：
 * 为了使用GPU, 需要将模型和数据转移到GPU上, 设置GPU.device("cuda:0"), 否则运行效果会比较慢
@@ -67,7 +70,7 @@ def initialize_model():
 
     return model, criterion, optimizer
 #! num of epoch changed to 5, actually it should be 10, but for the sake of time, I changed it to 5
-def train_model(model, dataloaders, criterion, optimizer, num_epochs=10):
+def train_model(model, dataloaders, criterion, optimizer, num_epochs=30):
     print("Training started!")
     for epoch in range(num_epochs):
         model.train()
@@ -105,7 +108,7 @@ def create_checkpoint(model, optimizer, epoch):
     print("Checkpoint created!")
 
 # write a valid function to test the model
-def valid_model(model, dataloaders, criterion, num_epochs=1, use_checkpoint=False):
+def valid_model(model, dataloaders, criterion, num_epochs=3, use_checkpoint=False):
     # choose whether to use checkpoint or not
     if use_checkpoint:
         checkpoint = torch.load("checkpoint.pth")
@@ -138,7 +141,6 @@ def valid_model(model, dataloaders, criterion, num_epochs=1, use_checkpoint=Fals
         # print("=====================================")
         epoch_acc = running_corrects.double() / len(dataloaders['val'].dataset)
         print(f'Epoch {epoch}/{num_epochs - 1} Val Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
-
     print("Validation finished!")
 
 def test_model(model, dataloaders):
@@ -155,11 +157,10 @@ def test_model(model, dataloaders):
             print("-------------------")
             for folder_name, pred in zip(folder_names, preds):
                 print(f"File: {folder_name}, Prediction: {pred}")
-
     print("Validation finished!")
   
 if __name__ == "__main__":
-    # change cpu to gpu
+    # change cpu to gpu, if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
