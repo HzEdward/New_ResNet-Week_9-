@@ -8,6 +8,7 @@ import os
 from PIL import Image
 from test_dataloader import *
 from comparison import overlay_mask
+import pandas as pd
 import matplotlib.pyplot as plt
 
 '''
@@ -162,12 +163,14 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
     count_blacklisted = 0
     with torch.no_grad():
         for input, image_full_path in dataloaders['test']:
+            
             outputs = model(input)
             _, preds = torch.max(outputs, 1)
             if preds == 0:
                 count_blacklisted += 1 
 
                 #* 开始处理疑似黑名单的图像的比较，将其保存到output_images文件夹中
+                #TODO：以一种更好的方式处理黑名单图像，可以借鉴在CATARACT2024中的colourmap的方式
                 # Assuming image_full_path is a tuple containing the path as its first element
                 image_full_path = image_full_path[0]
                 # turn "../segmentation/Video01/Images/Video1_frame000470.png" to "../segmentation/Video01/Labels/Video1_frame000470.png"
@@ -190,14 +193,48 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
                 output_folder = "output_images"
                 output_filename = os.path.basename(image_full_path)
                 output_path = os.path.join(output_folder, output_filename)
-                # print(f"output_path:{output_path}")
 
                 os.makedirs(output_folder, exist_ok=True)
                 plt.imsave(output_path, composite_image)
-                # print(f"Composite image saved to {output_path}")
+                print(f"Composite image saved to {output_path}")
+                #* Complete 收集黑名单叠加图像
 
-                if count_blacklisted == 20:
-                    break
+
+                #* 修改csv文件
+                # image_full_path: ('../segmentation/Video01/Images/Video1_frame000120.png',)
+                # to Video01/Images/Video1_frame000120.png
+                print(f"image_full_path:{image_full_path}")
+                image_full_path = image_full_path.split("/")[2:]
+                image_full_path = "/".join(image_full_path)
+                print(f"image_full_path:{image_full_path}")
+
+                #* 则修改该csv文件中的黑名单图像的标签
+                #* 将row中的blacklist的column修改为3
+                #* 读取csv文件
+
+
+                csv_path = "./data modified.csv"
+                csv_data = pd.read_csv(csv_path)
+                for i, row in csv_data.iterrows():
+                    if row["img_path"] == image_full_path:
+                        # 那么这行的"blacklisted"的column要修改为3
+                        csv_data.at[i, "blacklisted"] = 3
+                        csv_data.to_csv(csv_path, index=False)
+                        print(f"Successfully modified the csv file: {csv_path}")
+                        sys.exit()
+                        break
+                    else:
+                        continue
+                #* 完成csv文件的修改
+
+                
+
+    
+
+
+
+
+
             else:
                 continue
     

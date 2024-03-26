@@ -6,16 +6,17 @@ from torchvision.transforms import functional as F
 
 def overlay_mask(image_path, mask_path, alpha=0.5, colormap='viridis'):
     """
-    Overlay a segmentation mask on the original image using a specific colormap.
+    Overlay a mask on an image and return the composite image.
 
-    Parameters:
-    - image: The original image (Tensor or numpy array).
-    - mask: The segmentation mask (Tensor or numpy array).
-    - alpha: Transparency level of the overlay.
-    - colormap: Colormap to apply to the mask.
+    Args:
+        image_path (str): The path to the original image.
+        mask_path (str): The path to the mask image.
+        alpha (float, optional): The blending factor between the image and the mask. Defaults to 0.5.
+        colormap (str, optional): The colormap to apply to the mask. Defaults to 'viridis'.
 
     Returns:
-    - Composite image with the mask overlaid on the original image.
+        numpy.ndarray: The composite image with the mask overlaid.
+
     """
     # print(f"image_path:{image_path}")
     # print(f"mask_path:{mask_path}")
