@@ -196,7 +196,7 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
                 plt.imsave(output_path, composite_image)
                 # print(f"Composite image saved to {output_path}")
 
-                if count_blacklisted == 10:
+                if count_blacklisted == 20:
                     break
             else:
                 continue

@@ -55,6 +55,7 @@ class SegmentationDataset(Dataset):
         count = 0
 
         for index, row in data.iterrows():
+            # 确保都是白名单数据并且没有在之前的training datset中出现过
             if row['blacklisted'] == 0 and row["Replicate"] == 1:
                 image_path = os.path.join(self.root_dir, row['img_path'])
                 label_path = os.path.join(self.root_dir, row['lbl_path'])
