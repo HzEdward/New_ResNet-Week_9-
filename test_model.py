@@ -196,17 +196,17 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
 
                 os.makedirs(output_folder, exist_ok=True)
                 plt.imsave(output_path, composite_image)
-                print(f"Composite image saved to {output_path}")
+                # print(f"Composite image saved to {output_path}")
                 #* Complete 收集黑名单叠加图像
 
 
                 #* 修改csv文件
                 # image_full_path: ('../segmentation/Video01/Images/Video1_frame000120.png',)
                 # to Video01/Images/Video1_frame000120.png
-                print(f"image_full_path:{image_full_path}")
+                # print(f"image_full_path:{image_full_path}")
                 image_full_path = image_full_path.split("/")[2:]
                 image_full_path = "/".join(image_full_path)
-                print(f"image_full_path:{image_full_path}")
+                # print(f"image_full_path:{image_full_path}")
 
                 #* 则修改该csv文件中的黑名单图像的标签
                 #* 将row中的blacklist的column修改为3
@@ -221,20 +221,10 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
                         csv_data.at[i, "blacklisted"] = 3
                         csv_data.to_csv(csv_path, index=False)
                         print(f"Successfully modified the csv file: {csv_path}")
-                        sys.exit()
                         break
                     else:
                         continue
                 #* 完成csv文件的修改
-
-                
-
-    
-
-
-
-
-
             else:
                 continue
     
