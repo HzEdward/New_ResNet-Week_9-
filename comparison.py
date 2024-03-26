@@ -1,5 +1,6 @@
 import os
 import torch
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 from torchvision.transforms import functional as F
@@ -35,14 +36,17 @@ if __name__ == "__main__":
     # Load your original image and mask here
     original_image_path = "7_blacklist_pair/image_Video24_frame000730_rotated.png"
     mask_path = "7_blacklist_pair/label_Video24_frame000730_rotated.png"
+    print(f"the height and width of original_image_path:{plt.imread(original_image_path).shape}")
+    print(f"the height and width of mask_path:{plt.imread(mask_path).shape}")
+    sys.exit(1)
     original_image = plt.imread(original_image_path)
     mask = plt.imread(mask_path)
 
-    composite_image = overlay_mask(original_image, mask, alpha=0.5)
+    composite_image = overlay_mask(original_image, mask, alpha=0.7)
 
     # Define the folder and filename for the saved image
     output_folder = "output_images"
-    output_filename = "composite_Video24_frame000730_rotated.png"
+    output_filename = "label_Video12_frame009750.png"
     output_path = f"{output_folder}/{output_filename}"
 
     # Ensure the output directory exists
