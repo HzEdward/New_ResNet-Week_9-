@@ -51,11 +51,11 @@ class SegmentationDataset(Dataset):
         """
         Read the data from the CSV file and populate the data list.
         """
-        data = pd.read_csv(os.path.join(self.root_dir, 'data.csv'))
+        data = pd.read_csv(os.path.join(self.root_dir, 'data copy.csv'))
         count = 0
 
         for index, row in data.iterrows():
-            if row['blacklisted'] == 0:
+            if row['blacklisted'] == 0 and row["Replicate"] == 1:
                 image_path = os.path.join(self.root_dir, row['img_path'])
                 label_path = os.path.join(self.root_dir, row['lbl_path'])
                 self.data.append((image_path, label_path))
@@ -152,10 +152,19 @@ def get_dataloaders():
 if __name__ == '__main__':
    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
    dataloader = get_dataloaders()
-   for i, (image, label, image_full_path) in enumerate(dataloader['test']):
+   for i, (input, image_full_path) in enumerate(dataloader['test']):
        print("=====================================")
-       print("image shape:", image.shape)
-       print("label shape:", label.shape)
        print("img_path:", image_full_path)
        if i == 10:
            break
+
+'''
+Checkpoint loaded!
+the testing dataset has 4275 images
+Total blacklisted images: 650/4275
+so percentage is 15.2%
+
+Testing finished!
+
+650 more blacklisted images are detected, which is consistent with the csv file
+'''

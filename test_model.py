@@ -157,23 +157,22 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
     else:
         pass
     
+    count_blacklisted = 0
     with torch.no_grad():
         for input, image_full_path in dataloaders['test']:
             outputs = model(input)
             _, preds = torch.max(outputs, 1)
-
             if preds == 0:
-                print(f"Image {image_full_path} is blacklisted")
+                count_blacklisted += 1
             else:
                 continue
-            
+    print(f"Total blacklisted images: {count_blacklisted}/{len(dataloaders['test'].dataset)}")            
     print("Testing finished!")
     
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
-    
     test_model(model, dataloaders, checkpoint_loaded=True)
 
     
