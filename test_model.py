@@ -220,7 +220,7 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
                         # 那么这行的"blacklisted"的column要修改为3
                         csv_data.at[i, "blacklisted"] = 3
                         csv_data.to_csv(csv_path, index=False)
-                        print(f"Successfully modified the csv file: {csv_path}")
+                        # print(f"Successfully modified the csv file: {csv_path}")
                         break
                     else:
                         continue
