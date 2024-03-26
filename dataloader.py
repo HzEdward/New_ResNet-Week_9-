@@ -75,7 +75,7 @@ def get_dataloaders():
     train_dataset = SegmentationDataset(root_dir='../Final Dataset/train', transform=transform_rgb, transform_segmentation=transform_segmentation)
     val_dataset = SegmentationDataset(root_dir='../Final Dataset/test', transform=transform_rgb, transform_segmentation=transform_segmentation)    
     
-    #! note: batch size is 24, Shuffle both are True
+    #* batch size is 24, so one enumerate will have 24 images
     train_loader = DataLoader(train_dataset, batch_size=24, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=24, shuffle=False)
     

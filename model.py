@@ -164,7 +164,7 @@ if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model, criterion, optimizer = initialize_model()
     dataloaders = get_dataloaders()
-    # train_model(model, dataloaders, criterion, optimizer)
+    train_model(model, dataloaders, criterion, optimizer)
     valid_model(model, dataloaders, criterion, use_checkpoint=True)
 
 

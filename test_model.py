@@ -148,7 +148,6 @@ def valid_model(model, dataloaders, criterion, num_epochs=1, checkpoint_loaded=F
 def test_model(model, dataloaders, checkpoint_loaded=False):
     model.eval()
 
-
     if checkpoint_loaded:
         checkpoint = torch.load("checkpoint.pth")
         model.load_state_dict(checkpoint['model_state_dict'])
@@ -162,13 +161,13 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
         for input, image_full_path in dataloaders['test']:
             outputs = model(input)
             _, preds = torch.max(outputs, 1)
-            
+
             if preds == 0:
                 print(f"Image {image_full_path} is blacklisted")
             else:
                 continue
             
-    print("Validation finished!")
+    print("Testing finished!")
     
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
