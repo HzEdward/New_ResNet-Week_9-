@@ -7,6 +7,8 @@ import sys
 import os
 from PIL import Image
 from test_dataloader import *
+from comparison import overlay_mask
+import matplotlib.pyplot as plt
 
 '''
 这是模型的主入口，包含以下功能：
@@ -163,9 +165,42 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
             outputs = model(input)
             _, preds = torch.max(outputs, 1)
             if preds == 0:
-                count_blacklisted += 1
+                count_blacklisted += 1 
+                print(f"image_full_path:{image_full_path}")
+                # Assuming image_full_path is a tuple containing the path as its first element
+                image_full_path = image_full_path[0]
+                # turn "../segmentation/Video01/Images/Video1_frame000470.png" to "../segmentation/Video01/Labels/Video1_frame000470.png"
+                label_full_path = image_full_path.replace("Images", "Labels")
+                print(f"label_full_path:{label_full_path}")
+
+                # 检查图像和标签是否存在
+                if not os.path.exists(image_full_path):
+                    print(f"Image not found: {image_full_path}")
+                    sys.exit()
+                else:
+                    pass
+                if not os.path.exists(label_full_path):
+                    print(f"Label not found: {label_full_path}")
+                    sys.exit()
+                else:
+                    pass
+
+                composite_image = overlay_mask(image_full_path,label_full_path, alpha=0.7, colormap='viridis')
+                output_folder = "output_images"
+                output_filename = os.path.basename(image_full_path)
+                output_path = os.path.join(output_folder, output_filename)
+                print(f"output_path:{output_path}")
+                sys.exit()
+
+
+                os.makedirs(output_folder, exist_ok=True)
+                plt.imsave(output_path, composite_image)
+                print(f"Composite image saved to {output_path}")
+                sys.exit()
             else:
                 continue
+    
+
     print(f"Total blacklisted images: {count_blacklisted}/{len(dataloaders['test'].dataset)}")            
     print("Testing finished!")
     
