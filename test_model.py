@@ -227,7 +227,6 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
                 #* 完成csv文件的修改
             else:
                 continue
-    
 
     print(f"Total blacklisted images: {count_blacklisted}/{len(dataloaders['test'].dataset)}")            
     print("Testing finished!")
