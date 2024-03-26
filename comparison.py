@@ -17,7 +17,8 @@ def overlay_mask(image_path, mask_path, alpha=0.5, colormap='viridis'):
     Returns:
     - Composite image with the mask overlaid on the original image.
     """
-
+    print(f"image_path:{image_path}")
+    print(f"mask_path:{mask_path}")
     # Load the original image and mask
     image = plt.imread(image_path)
     mask = plt.imread(mask_path, 0)  # The second parameter ensures it's loaded as grayscale

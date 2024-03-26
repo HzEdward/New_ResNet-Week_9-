@@ -166,12 +166,12 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
             _, preds = torch.max(outputs, 1)
             if preds == 0:
                 count_blacklisted += 1 
-                print(f"image_full_path:{image_full_path}")
+
+                #* 开始处理疑似黑名单的图像的比较，将其保存到output_images文件夹中
                 # Assuming image_full_path is a tuple containing the path as its first element
                 image_full_path = image_full_path[0]
                 # turn "../segmentation/Video01/Images/Video1_frame000470.png" to "../segmentation/Video01/Labels/Video1_frame000470.png"
                 label_full_path = image_full_path.replace("Images", "Labels")
-                print(f"label_full_path:{label_full_path}")
 
                 # 检查图像和标签是否存在
                 if not os.path.exists(image_full_path):
@@ -184,19 +184,20 @@ def test_model(model, dataloaders, checkpoint_loaded=False):
                     sys.exit()
                 else:
                     pass
-
+                # print(f"image_full_path:{image_full_path}")
+                # print(f"label_full_path:{label_full_path}")
                 composite_image = overlay_mask(image_full_path,label_full_path, alpha=0.7, colormap='viridis')
                 output_folder = "output_images"
                 output_filename = os.path.basename(image_full_path)
                 output_path = os.path.join(output_folder, output_filename)
-                print(f"output_path:{output_path}")
-                sys.exit()
-
+                # print(f"output_path:{output_path}")
 
                 os.makedirs(output_folder, exist_ok=True)
                 plt.imsave(output_path, composite_image)
-                print(f"Composite image saved to {output_path}")
-                sys.exit()
+                # print(f"Composite image saved to {output_path}")
+
+                if count_blacklisted == 10:
+                    break
             else:
                 continue
     
