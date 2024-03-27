@@ -77,7 +77,6 @@ def modify_csv(csv_path="./data copy.csv", rgb_image_paths=[]):
     if count == len(rgb_image_paths):
         print("CSV文件修改成功！")
 
-
 if __name__ == "__main__":
     modify_csv("./data copy.csv", rgb_image_paths=filter())
 
