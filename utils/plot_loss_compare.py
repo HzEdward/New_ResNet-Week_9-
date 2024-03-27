@@ -43,8 +43,8 @@ def plot_loss(file_paths, save_path, step=1):
     plt.savefig(save_path)  # 保存图表为图片
 
 if __name__ == "__main__":
- 
-    file_paths = ["./loss_record_trial.txt", "./loss_record_trial_2.txt"]  # 替换为您的文本文件路径列表
+ #./original_training_dynamics.txt
+    file_paths = ["./original_training_dynamics.txt", "./ResNet_training_dynamics.txt"]  # 替换为您的文本文件路径列表
     save_path = "loss_plot.png"  # 图片保存路径
 
     # check whether file paths are correct
