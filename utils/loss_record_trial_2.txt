@@ -1,10 +1,10 @@
-Epoch 000, Batch 000 - Loss: 1.31581;  Time taken: 658.14 
-Epoch 000, Batch 001 - Loss: 1.27537;  Time taken: 6035.177 
-Epoch 000, Batch 002 - Loss: 1.29128;  Time taken: 2300.581 
-Epoch 000, Batch 003 - Loss: 1.25218;  Time taken: 2295.639 
-Epoch 000, Batch 004 - Loss: 1.24146;  Time taken: 2303.512 
-Epoch 000, Batch 005 - Loss: 1.22051;  Time taken: 2330.511 
-Epoch 000, Batch 006 - Loss: 1.19533;  Time taken: 2320.788 
+Epoch 001, Batch 000 - Loss: 0.29603;  Time taken: 646.0709999999999 
+Epoch 001, Batch 001 - Loss: 0.34441;  Time taken: 2879.8759999999997 
+Epoch 001, Batch 002 - Loss: 0.32018;  Time taken: 2306.4840000000004 
+Epoch 001, Batch 003 - Loss: 0.42857;  Time taken: 2244.232 
+Epoch 001, Batch 004 - Loss: 0.25100;  Time taken: 2250.389 
+Epoch 001, Batch 005 - Loss: 0.44235;  Time taken: 2267.143 
+Epoch 001, Batch 006 - Loss: 0.32051;  Time taken: 2359.741 
 Epoch 000, Batch 007 - Loss: 1.16974;  Time taken: 2292.786 
 Epoch 000, Batch 008 - Loss: 1.13577;  Time taken: 2275.5260000000003 
 Epoch 000, Batch 009 - Loss: 1.18860;  Time taken: 2306.013 
