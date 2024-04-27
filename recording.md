@@ -2,7 +2,7 @@
 
 ## Dataset Description
 ### Final Dataset: used for training and testing
-### ../Mislabelled Attempts (week 6)/dataset: 未有进行类平衡的数据集
+### ../Mislabelled Attempts (week 6)/dataset: Datasets not have class-balanced
 
 
 ## Code 
